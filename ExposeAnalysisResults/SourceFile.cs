@@ -150,7 +150,7 @@ namespace ExposeAnalysisResultsTool
             int i = a_line - 1;
 
             //範囲外は無視する
-            if (i < 0 || i <= m_isModefiedLine.Count)
+            if (i < 0 || m_isModefiedLine.Count <= i)
                 return;
 
             //以前に、この行に追加していなければ、追加行リストを生成
