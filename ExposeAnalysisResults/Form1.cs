@@ -223,12 +223,6 @@ namespace ExposeAnalysisResultsTool
         //警告一覧ファイルの参照ダイアログ呼び出し
         private void button_SelectWarningFile_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog fbd = new FolderBrowserDialog();
-
-            fbd.RootFolder = Environment.SpecialFolder.Desktop;
-            //fbd.SelectedPath = @"";
-            fbd.ShowNewFolderButton = true;
-
             //OpenFileDialogクラスのインスタンスを作成
             OpenFileDialog ofd = new OpenFileDialog();
 
@@ -243,12 +237,7 @@ namespace ExposeAnalysisResultsTool
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 //OKボタンがクリックされたとき、選択されたファイル名を表示する
-                Console.WriteLine(ofd.FileName);
-            }
-            if (fbd.ShowDialog(this) == DialogResult.OK)
-            {
-                //選択されたフォルダを表示する
-               textBox2.Text =  fbd.SelectedPath;
+                textBox2.Text = (ofd.FileName);
             }
 
         }
