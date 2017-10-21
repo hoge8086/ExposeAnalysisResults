@@ -65,14 +65,14 @@ namespace ExposeAnalysisResultsTool
     {
         //a_index番目の警告を取得する
         CWarning GetWarning(int a_index);
-        //a_index番目の警告をエクスポート対象にする
-        void SetToExportWarning(int a_index);
         //警告のリストを出力する
         int Export(string a_filePath, ref string a_ErrorMsg);
         //警告のリストを読み込む
         int Import(string a_filePath, ref string a_ErrorMsg);
         //警告の総数を取得する
         int Count();
+        //警告を末尾に追加する
+        void AddWarning(CWarning warn);
 
         //a_index番目の警告をエクスポート時に除外する
         //void ExcludeWarningWhenExport(int a_index);
@@ -80,12 +80,19 @@ namespace ExposeAnalysisResultsTool
 
     class CWarnListCsv : IWarnListCommon
     {
-        List<CWarning> m_warnList     = new List<CWarning>();
-        //List<int>      m_deleteRows  = new List<int>();
-        List<int>      m_exportRows  = new List<int>();
+        List<CWarning> m_warnList;
         private const int ROW_OFFSET = 1;
         private const int COLUMN_OFFSET = 0;
-        private System.Text.Encoding fileEncoding = System.Text.Encoding.GetEncoding("shift_jis");
+
+        private System.Text.Encoding m_fileEncoding;
+
+        public CWarnListCsv(System.Text.Encoding a_fileEncoding = null)
+        {
+            m_warnList = new List<CWarning>();
+
+            if(a_fileEncoding == null)
+                m_fileEncoding = System.Text.Encoding.GetEncoding("shift_jis");
+        }
 
         // CSVファイルから警告リストをインポートする
         // 戻り値: 0以上 解析成功(フィールドが解析できなかった行数を返す)、-1 解析に失敗
@@ -99,10 +106,8 @@ namespace ExposeAnalysisResultsTool
 
             //警告リスト
             m_warnList     = new List<CWarning>();
-            //m_deleteRows  = new List<int>();
-            m_exportRows  = new List<int>();
 
-            using (csvParser = new TextFieldParser(a_filePath, fileEncoding))
+            using (csvParser = new TextFieldParser(a_filePath, m_fileEncoding))
             {
                 try
                 {
@@ -117,7 +122,7 @@ namespace ExposeAnalysisResultsTool
                     {
                         //フィールドを読込む
                         //※フィールドが全てからの場合はnullが返る
-                        //※空行は予読み飛ばされる
+                        //※空行は読み飛ばされる
                         string[] csvfield = csvParser.ReadFields();
 
                         if (csvfield != null && row >= ROW_OFFSET)  //タイトル行(ROW_OFFSET行分)は飛ばす
@@ -185,20 +190,10 @@ namespace ExposeAnalysisResultsTool
             return warn;
         }
 
-        //a_index番目の警告をエクスポート時に除外する
-        //public void ExcludeWarningWhenExport(int a_index)
-        //{
-        //    //バッファにためて、エクスポート時に出力しないようにする
-        //    if (!m_deleteRows.Contains(a_index))
-        //        m_deleteRows.Add(a_index);
-        //}
-
-        //a_index番目の警告をエクスポート対象にする
-        public void SetToExportWarning(int a_index)
+        //警告を末尾に追加する
+        public void AddWarning(CWarning warn)
         {
-            //バッファにためて、エクスポート時に出力しないようにする
-            if (!m_exportRows.Contains(a_index))
-                m_exportRows.Add(a_index);
+            m_warnList.Add(warn);
         }
 
         //ファイルに警告を出力する
@@ -210,27 +205,23 @@ namespace ExposeAnalysisResultsTool
             try
             {
                 //出力ファイルを作成する
-                fileWriter = new System.IO.StreamWriter(a_filePath, false, fileEncoding);
+                fileWriter = new System.IO.StreamWriter(a_filePath, false, m_fileEncoding);
 
                 //警告を順に書き込む
                 for(int i = 0; i < m_warnList.Count; i++)
                 {
-                    //警告がエクスポート対象かどうか
-                    if (m_exportRows.Contains(i))
-                    {
-                        CWarning warn = m_warnList[i];
-                        //警告をCSVのフォーマットにする
-                        string csvLine = string.Format("{0},{1},{2},{3},{4},{5}",
-                                                            MakeCsvFieldText(warn.m_num),
-                                                            MakeCsvFieldText(warn.m_filePath),
-                                                            warn.m_line,
-                                                            warn.m_level,
-                                                            warn.m_warning,
-                                                            MakeCsvFieldText(warn.m_message));
-                        //警告を書き込む
-                        fileWriter.WriteLine(csvLine);
-                        count++;
-                    }
+                    CWarning warn = m_warnList[i];
+                    //警告をCSVのフォーマットにする
+                    string csvLine = string.Format("{0},{1},{2},{3},{4},{5}",
+                                                        MakeCsvFieldText(warn.m_num),
+                                                        MakeCsvFieldText(warn.m_filePath),
+                                                        warn.m_line,
+                                                        warn.m_level,
+                                                        warn.m_warning,
+                                                        MakeCsvFieldText(warn.m_message));
+                    //警告を書き込む
+                    fileWriter.WriteLine(csvLine);
+                    count++;
 
                 }
 

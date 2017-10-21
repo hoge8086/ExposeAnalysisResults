@@ -171,18 +171,18 @@
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(61, 318);
+            this.label5.Location = new System.Drawing.Point(48, 318);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(376, 12);
+            this.label5.Size = new System.Drawing.Size(389, 12);
             this.label5.TabIndex = 14;
-            this.label5.Text = "※ソースコード内の\"▼\"と\"▲\"を含む行に指定したキーワードを入力してください";
+            this.label5.Text = "※ソースコードの修正行を示す\"▼\"と\"▲\"で指定したキーワードを入力してください";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(104, 61);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(292, 12);
+            this.label6.Size = new System.Drawing.Size(258, 12);
             this.label6.TabIndex = 15;
             this.label6.Text = "※警告一覧をCSVファイルで保存して指定してください";
             // 

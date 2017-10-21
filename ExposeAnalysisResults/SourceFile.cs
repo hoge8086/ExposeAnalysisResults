@@ -21,6 +21,63 @@ namespace ExposeAnalysisResultsTool
         }
     }
 
+    class CSrouceFileMgr
+    {
+        //ソースファイルのリスト
+        private Dictionary<string, CSourceFile> m_sourceFiles = new Dictionary<string, CSourceFile>();
+
+        public CSrouceFileMgr(string[] a_sourcePaths, string[] a_beginStr, string[] a_endStr)
+        {
+            //ソースファイルを解析する
+            foreach (string sourcePath in a_sourcePaths)
+            {
+                if (!System.IO.File.Exists(sourcePath))
+                {
+                    throw new Exception("致命的エラーです。\n" + sourcePath + "が存在しません。");
+                }
+
+                if (m_sourceFiles.ContainsKey(Path.GetFileName(sourcePath)))
+                {
+                    throw new Exception("致命的エラーです。\n同一ファイル名のソースコードは検査できません。\n" +
+                        sourcePath + "を対象から外してください");
+                }
+
+                //ソースファイルを解析する
+                CSourceFile source = new CSourceFile(sourcePath);
+
+                //修正行を設定する
+                source.SetModefiedLines(a_beginStr, a_endStr);
+
+                //解析したソースファイルを登録する
+                m_sourceFiles.Add(Path.GetFileName(sourcePath), source);
+            }
+        }
+        
+        //ソースファイルが登録されていれば、それを取得する
+        public CSourceFile GetSourceFile(string a_FilePath)
+        {
+            if (!m_sourceFiles.ContainsKey(Path.GetFileName(a_FilePath)))
+                return null;
+
+            return m_sourceFiles[Path.GetFileName(a_FilePath)];
+        }
+
+        //ソースファイルを出力する
+        public void ExportFiles(string a_outputDirectory)
+        {
+            if (!Directory.Exists(a_outputDirectory))
+            {
+                Directory.CreateDirectory(a_outputDirectory);
+            }
+
+            foreach (var fileName in m_sourceFiles.Keys)
+            {
+                m_sourceFiles[fileName].Export(a_outputDirectory + fileName);
+            }
+        }
+
+    }
+
     class CSourceFile
     {
         private List<bool>   m_isModefiedLine = new List<bool>();  //修正された行かどうか
